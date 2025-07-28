@@ -48,12 +48,7 @@ def unet_s1(input_size1=(256,256,1), input_size2=(256,256,1), ts=0):
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(merge9)
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(conv9)
     conv9 = Conv2D(2, 3, activation = LeakyReLU() , padding = 'same')(conv9)
-    # If temperature scaling is activated, no activation layer
-    if ts == 1:
-        conv10 = Conv2D(1, 1, activation = None)(conv9)
-        loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-    else:
-        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+    conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
 
     model = Model([inputs1,inputs2],conv10)
 
@@ -107,12 +102,7 @@ def unet_s2(input_size1=(256,256,3), input_size2=(256,256,3), ts=0):
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(merge9)
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(conv9)
     conv9 = Conv2D(2, 3, activation = LeakyReLU() , padding = 'same')(conv9)
-    # If temperature scaling is activated, no activation layer
-    if ts == 1:
-        conv10 = Conv2D(1, 1, activation = None)(conv9)
-        loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-    else:
-        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+    conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
 
     model = Model([inputs1,inputs2],conv10)
 
@@ -214,12 +204,7 @@ def unet_s1s2(input_size1 = (256,256,3),input_size2 = (256,256,3),input_size3 = 
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(merge9)
     conv9 = Conv2D(64, 3, activation = LeakyReLU() , padding = 'same')(conv9)
     conv9 = Conv2D(2, 3, activation = LeakyReLU() , padding = 'same')(conv9)    
-    # If temperature scaling is activated, no activation layer
-    if ts == 1:
-        conv10 = Conv2D(1, 1, activation = None)(conv9)
-        loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-    else:
-        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+    conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
 
     model = Model([inputs1,inputs2,inputs3,inputs4],conv10)
 
@@ -228,7 +213,7 @@ def unet_s1s2(input_size1 = (256,256,3),input_size2 = (256,256,3),input_size3 = 
 
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=1e-4)
     #Adam(lr = 1e-4)
-    model.summary()
+    #model.summary()
     return model
 
 
@@ -237,12 +222,12 @@ def get_model(model_type, ts=0):
         return unet_s1(input_size1=(256, 256, 1), input_size2=(256, 256, 1), ts=ts)
     elif model_type == 'S2':
         return unet_s2(input_size1=(256, 256, 3), input_size2=(256, 256, 3), ts=ts)
-    elif model_type == 'S1&S2':
+    elif model_type == 'S1_S2':
         return unet_s1s2(
             input_size1=(256, 256, 3), input_size2=(256, 256, 3),
             input_size3=(256, 256, 1), input_size4=(256, 256, 1),
             ts=ts
         )
     else:
-        raise ValueError(f"Unsupported model type '{model_type}'. Available options: 'S1', 'S2', 'S1&S2'")
+        raise ValueError(f"Unsupported model type '{model_type}'. Available options: 'S1', 'S2', 'S1_S2'")
 

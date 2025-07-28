@@ -355,7 +355,7 @@ def test_generator_s1(base_test_path, dataset_type='Ombria'):
             img_before = tf.convert_to_tensor(img_before, dtype=tf.float32)
             img_after = tf.convert_to_tensor(img_after, dtype=tf.float32)
 
-            yield ((img_before, img_after),)
+            yield ((img_after, img_before),)
 
     # Define input signature for TensorFlow dataset
     output_signature = ((
@@ -374,27 +374,19 @@ def test_generator_s1(base_test_path, dataset_type='Ombria'):
 def test_generator_s2(base_test_path, dataset_type='Ombria'):
     def testGenerator(base_test_path, dataset_type='Ombria'):
         if dataset_type == 'Ombria':
-            dir_before = os.path.join(base_test_path, 'BEFORE')
-            dir_after = os.path.join(base_test_path, 'AFTER')
-        elif dataset_type == 'S1GFloods':
-            dir_before = os.path.join(base_test_path, 'B')
-            dir_after = os.path.join(base_test_path, 'A')
+            dir_before = base_test_path + '/AFTER'
+            dir_after = base_test_path + '/BEFORE'
         else:
             raise ValueError("Unsupported dataset type. Use 'Ombria' or 'S1GFloods'.")
 
-        filenames_before = sorted(os.listdir(dir_before))
-        filenames_after = sorted(os.listdir(dir_after))
+        filenames_before = os.listdir(dir_before)
+        filenames_before.sort()
+        filenames_after = os.listdir(dir_after)
+        filenames_after.sort()
 
-        for i in range(len(filenames_before)):
+        for i in range(0,len(filenames_before)):
             img_before = io.imread(os.path.join(dir_before, filenames_before[i]))
             img_after = io.imread(os.path.join(dir_after, filenames_after[i]))
-
-            # For S1GFloods: images are RGB but only one channel is used
-            if dataset_type == 'S1GFloods':
-                img_before = np.expand_dims(img_before[:, :, 0], axis=-1)
-                img_after = np.expand_dims(img_after[:, :, 0], axis=-1)
-                img_before = tf.squeeze(img_before, axis=-1)
-                img_after = tf.squeeze(img_after, axis=-1)
 
             # Normalize and reshape to batch dimension
             img_before = img_before / 255
