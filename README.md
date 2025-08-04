@@ -1,43 +1,92 @@
-# 🌊 Uncertainty-Aware Flood Segmentation with Conformal Prediction
+# Uncertainty-Aware Flood Segmentation with Conformal Prediction
 
-![Flood Segmentation](docs/figures/block_diagram_ICP_2.png)
-![Flood Segmentation](docs/figures/block_diagram_K_fold.png)
-*Figure: Comparison of K-Fold CV+ and Inductive Conformal Prediction in segmenting flood zones with uncertainty estimates.*
-
-## 📄 Overview
-
-This repository contains the official implementation of the paper:
-
-> **Uncertainty-Aware Flood Segmentation from Sentinel 2 Observations with Conformal Prediction**  
+> Official implementation of our IGARSS 2025 paper:  
+> **Uncertainty-Aware Flood Segmentation from Sentinel-2 Observations with Conformal Prediction**  
 > *Ioannis Konidakis, Klea Panayidou, Grigorios Tsagkatakis, Panagiotis Tsakalides*  
-> Presented at IGARSS 2025  
-> [[PDF](docs/IGARSS_2025.pdf)]
-
-We introduce Conformal Prediction (CP) for flood segmentation using Sentinel-2 data and evaluate both **Inductive CP (ICP)** and **K-Fold Cross-Validation CP (CV+)** on the **OmbriaNet** architecture. This approach enhances trust in predictions by offering statistically valid uncertainty estimates.
+> [[PDF](./2025-IGARSS-UQ_CP.pdf)]
 
 ---
 
-## ✨ Key Features
+## Overview
 
-- **Reliable Uncertainty Estimation** with Conformal Prediction
-- **Comparison of CP techniques**: ICP vs K-Fold CV+
-- Built on top of a **bitemporal U-Net (OmbriaNet)** for flood segmentation
+This repository provides a framework for **uncertainty-aware flood segmentation** from **Sentinel-2 RGB imagery** using **Conformal Prediction (CP)**.
 
----
+We apply both:
+- **Inductive CP (ICP)**  
+- **K-Fold CV+ CP**
 
-## 🧠 Methodology
+...on top of the **OmbriaNet** bitemporal U-Net architecture.
 
-Our pipeline includes:
-1. Training the OmbriaNet model for segmentation.
-2. Applying Inductive CP or K-Fold CV+ to quantify uncertainty.
-3. Visualizing uncertainty-aware prediction sets.
-
-![Coverage Diagram](docs/figures/coverage_inefficiency_diagram_histogram_05.png)
-*Figure: Coverage and inefficiency comparison between naive thresholding and CP.*
+![Block Diagram](./Figures/block_diagram_ICP_2.png)
+![Block Diagram](./Figures/block_diagram_K_fold.png.png)
 
 ---
 
-## 📁 Dataset Structure
+## Highlights
 
-The code supports datasets structured as follows:
+- Sentinel-2 (RGB) bitemporal input  
+- Pixel-wise uncertainty via CP  
+- Evaluation: coverage, inefficiency, accuracy
 
+---
+
+## Dataset Format
+
+Each sample includes:
+
+```
+data/
+├── BEFORE/   # pre-flood RGB image 
+├── AFTER/    # post-flood RGB image 
+└── MASK/     # binary label (1 = flood, 0 = background)
+```
+
+---
+
+### Train with Inductive CP
+
+```bash
+python train_icp.py \
+  --path ./data \
+  --save_dir ./results_icp \
+  --epochs 20 \
+  --perc 0.9 \
+  --temperature_scaling
+```
+
+---
+
+### Evaluate on Test Set
+
+```bash
+python evaluate_cp_kfold.py \
+  --model_path ./results_icp/Ombria_models_ICP0.9_ep20.pkl \
+  --score_path ./results_icp/Ombria_scores_ICP0.9_ep20.pkl \
+  --test_path ./data/test \
+  --alpha 0.1
+```
+
+---
+
+## Example Results
+
+| Method     | Coverage (α=0.1) | Inefficiency | Mean IoU |
+|------------|------------------|--------------|----------|
+| ICP        | 0.89             | 1.66         | 0.70     |
+| CV+ (K=5)  | 0.89             | 1.19         | 0.81     |
+
+---
+
+## Visualization
+
+![Prediction Map](./Figures/coverage_inefficiency_diagram_histogram_05.png)
+
+- Yellow: uncertain pixels (both 0 and 1 predicted)
+- Blue: confident flood
+- Green: confident background
+
+---
+
+## Acknowledgements
+
+Supported by the **TITAN ERA Chair** (EU Horizon Europe, grant no. 101086741).
