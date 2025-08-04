@@ -21,10 +21,6 @@ We apply both:
   <img src="./Figures/block_diagram_K_fold.png" width="500" style="background-color: white; padding: 10px; border-radius: 8px;" />
 </p>
 
-![Block Diagram_ICP](./Figures/block_diagram_ICP_2.png)
-
-![Block Diagram_KF](./Figures/block_diagram_K_fold.png)
-
 ---
 
 ## Highlights
