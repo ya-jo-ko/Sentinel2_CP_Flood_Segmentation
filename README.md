@@ -17,8 +17,9 @@ We apply both:
 
 ...on top of the **OmbriaNet** bitemporal U-Net architecture.
 
-![Block Diagram](./Figures/block_diagram_ICP_2.png)
-![Block Diagram](./Figures/block_diagram_K_fold.png.png)
+![Block Diagram_ICP](./Figures/block_diagram_ICP_2.png)
+
+![Block Diagram_KF](./Figures/block_diagram_K_fold.png)
 
 ---
 
@@ -26,6 +27,8 @@ We apply both:
 
 - Sentinel-2 (RGB) bitemporal input  
 - Pixel-wise uncertainty via CP  
+- CP Uncertainty Quantification vs Naive 
+- Inductive CP vs K-Fold CV+ CP
 - Evaluation: coverage, inefficiency, accuracy
 
 ---
@@ -43,43 +46,26 @@ data/
 
 ---
 
-### Train with Inductive CP
-
-```bash
-python train_icp.py \
-  --path ./data \
-  --save_dir ./results_icp \
-  --epochs 20 \
-  --perc 0.9 \
-  --temperature_scaling
-```
-
----
-
-### Evaluate on Test Set
-
-```bash
-python evaluate_cp_kfold.py \
-  --model_path ./results_icp/Ombria_models_ICP0.9_ep20.pkl \
-  --score_path ./results_icp/Ombria_scores_ICP0.9_ep20.pkl \
-  --test_path ./data/test \
-  --alpha 0.1
-```
-
----
 
 ## Example Results
 
 | Method     | Coverage (α=0.1) | Inefficiency | Mean IoU |
 |------------|------------------|--------------|----------|
 | ICP        | 0.89             | 1.66         | 0.70     |
-| CV+ (K=5)  | 0.89             | 1.19         | 0.81     |
+| K-F CP (K=5)  | 0.89             | 1.19         | 0.81     |
+
+---
+
+## Coverage Diagram: Naive vs K-Fold CV+ (K=5)
+
+![Naive vs CP](./Figures/coverage_inefficiency_diagram_histogram_05.png)
 
 ---
 
 ## Visualization
 
-![Prediction Map](./Figures/coverage_inefficiency_diagram_histogram_05.png)
+![Prediction Map](./Figures/result_image_49.png)
+![Prediction Map 2](./Figures/result_image_cp.png)
 
 - Yellow: uncertain pixels (both 0 and 1 predicted)
 - Blue: confident flood
